@@ -1,0 +1,15 @@
+services:
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    PaymentBundle\Controller\:
+        resource: '../src/Controller'
+        tags: ['controller.service_arguments']
+
+    PaymentBundle\PaymentService:
+    PaymentBundle\PaymentApi\OrangeWebPaymentApi:
+    PaymentBundle\PaymentApi\OrangeUssdApi:
+    PaymentBundle\PaymentApi\MtnApi:
+    PaymentBundle\PaymentApi\StripeApi:
+    PaymentBundle\Twig\TwigExtension:

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" /><meta name="author" content="Lahotte"/>
+    <meta name="copyright" content="Lahotte"/>
+    <meta name="robots" content="noindex, nofollow">
+    <title>Lahotte payments</title>
+    <link rel="icon" href="/favicons/favicon-512x512.png"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <style>
+        html{
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .loader span{
+            border-radius: 50%; display: block;
+            width: 40px; height: 40px; border: 3px dashed gray;
+            border-right-color: transparent! important;
+            animation: loader 2s infinite linear;
+        }
+        @keyframes loader {
+            from {transform: rotate(0deg);}
+            to{transform: rotate(360deg);}
+        }
+    </style>
+</head>
+<body>
+    {% set paymentMethod = app.request.attributes.get('paymentMethod') %}
+    <div class="p-3">
+        <h2 class="fw-bold">Attente du paiement</h2>
+        <div class="mt-3">
+            {% if paymentMethod == "orange-ussd" %}
+                Vous avez reçu une notification sur votre téléphone pour la validation du payment
+            {% endif %}
+        </div>
+        <div class="loader mt-2"><span></span></div>
+    </div>
+
+    <script>
+        const paymentMethod = "{{paymentMethod}}"
+        const urlParams = new URLSearchParams(window.location.search)
+        const orderId = urlParams.get("orderId")
+        const cancelUrl = urlParams.get("cancelUrl")
+        const successUrl = urlParams.get("successUrl")
+
+        async function checkStatus(){
+            let response = await fetch("/api/payments/payment-status?paymentMethod="+paymentMethod+"&orderId="+orderId, {
+                headers: {"Accept": "application/json"}
+            })
+            response = await response.json()
+            if(response.status){
+                const paymentStatus = response.data
+                if(paymentStatus == "CANCELLED") window.location = cancelUrl
+                if(paymentStatus == "SUCCESS") window.location = successUrl
+            }
+        }
+
+        setInterval(checkStatus, 4000)
+    </script>
+</body>
+</html>
